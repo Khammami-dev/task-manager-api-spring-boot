@@ -1,54 +1,58 @@
 package com.khouloud.task_manager_api.models;
 
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "tasks")
+@Data // Génère tous les getters, setters, equals, hashCode, toString
+@NoArgsConstructor
+@AllArgsConstructor
 public class Task {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @Column(nullable = false)
     private String title;
+    
+    @Column(length = 1000)
     private String description;
-    private boolean completed;
+    
+    @Column(name = "is_completed")
+    private boolean completed = false;
+    
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+    
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    // Constructeurs
-    public Task() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+    
+    @Enumerated(EnumType.STRING)
+    private Priority priority = Priority.MEDIUM;
+    
+    private String category;
+    
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
-
-    public Task(Long id, String title, String description) {
-        this();
-        this.id = id;
+    
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+    
+    public Task(String title, String description, Priority priority, String category) {
         this.title = title;
         this.description = description;
-        this.completed = false;
+        this.priority = priority;
+        this.category = category;
     }
-
-    // Getters et Setters (génère-les avec ALT+INSERT dans IntelliJ)
-    public Long getId() { return id; }
-    public void setId(Long id) { 
-        this.id = id;
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public String getTitle() { return title; }
-    public void setTitle(String title) { 
-        this.title = title;
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public String getDescription() { return description; }
-    public void setDescription(String description) { 
-        this.description = description;
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public boolean isCompleted() { return completed; }
-    public void setCompleted(boolean completed) { 
-        this.completed = completed;
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
 }
