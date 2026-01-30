@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.*;
 
 import java.time.LocalDateTime;
 
@@ -18,9 +19,12 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @NotBlank(message = "Le titre est obligatoire")
+    @Size(min = 3, max = 100, message = "Le titre doit faire entre 3 et 100 caractères")
     @Column(nullable = false)
     private String title;
     
+    @Size(max = 1000, message = "La description ne doit pas dépasser 1000 caractères")
     @Column(length = 1000)
     private String description;
     
