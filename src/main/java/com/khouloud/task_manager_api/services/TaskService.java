@@ -5,6 +5,10 @@ import com.khouloud.task_manager_api.models.Task;
 import com.khouloud.task_manager_api.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.khouloud.task_manager_api.dto.TaskRequest;
+import com.khouloud.task_manager_api.dto.TaskResponse;
+import com.khouloud.task_manager_api.exception.ResourceNotFoundException;
 import com.khouloud.task_manager_api.models.Priority;
 
 import java.util.List;
@@ -34,16 +38,23 @@ public class TaskService {
     }
     
     // UPDATE
-    public Optional<Task> updateTask(Long id, Task updatedTask) {
-        return taskRepository.findById(id)
-            .map(existingTask -> {
-                existingTask.setTitle(updatedTask.getTitle());
-                existingTask.setDescription(updatedTask.getDescription());
-                existingTask.setCompleted(updatedTask.isCompleted());
-                existingTask.setPriority(updatedTask.getPriority());
-                existingTask.setCategory(updatedTask.getCategory());
-                return taskRepository.save(existingTask);
-            });
+    public TaskResponse updateTask(Long id, TaskRequest taskRequest) {
+        // Récupérer la tâche existante
+        Task existingTask = taskRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Task", "id", id));
+        
+        // Mettre à jour les champs
+        existingTask.setTitle(taskRequest.getTitle());
+        existingTask.setDescription(taskRequest.getDescription());
+        existingTask.setCompleted(taskRequest.isCompleted());
+        existingTask.setPriority(taskRequest.getPriority());
+        existingTask.setCategory(taskRequest.getCategory());
+        
+        // Sauvegarder
+        Task updatedTask = taskRepository.save(existingTask);
+        
+        // Retourner en DTO
+        return TaskResponse.fromEntity(updatedTask);
     }
     
     // DELETE
